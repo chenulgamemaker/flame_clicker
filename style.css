@@ -1,45 +1,55 @@
 body {
+  font-family: Arial, sans-serif;
   text-align: center;
-  font-family: sans-serif;
-  background: linear-gradient(#ff9f43, #ff6b6b);
-  color: white;
+  background: #111;
+  color: #fff;
+  margin: 0;
+}
+
+#game-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+#click-area {
+  flex: 0 0 auto;
+  text-align: center;
 }
 
 #flame {
-  font-size: 150px;
+  width: 200px;
   cursor: pointer;
-  transition: transform 0.1s;
-  margin: 20px auto;
-  display: inline-block;
 }
 
-#flame:active {
-  transform: scale(1.2);
+#shop {
+  width: 250px;
+  background: #222;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: left;
 }
 
 .shop-item {
-  background: rgba(255,255,255,0.1);
-  padding: 10px;
-  margin: 5px auto;
-  border-radius: 8px;
-  width: 300px;
+  border-bottom: 1px solid #444;
+  padding: 10px 0;
 }
 
-button {
-  margin: 5px;
+.shop-item button {
   padding: 5px 10px;
-  font-size: 16px;
-  background: #ff4d4d;
-  color: white;
+  background: orange;
   border: none;
-  border-radius: 8px;
   cursor: pointer;
+  color: white;
+  border-radius: 5px;
 }
 
-button:disabled {
-  background: #888;
+.shop-item button:disabled {
+  background: gray;
   cursor: not-allowed;
 }
+
 
 button:hover:enabled {
   background: #ff1a1a;
