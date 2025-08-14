@@ -1,17 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>🔥 Flame Clicker</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flame Clicker</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>🔥 Flame Clicker 🔥</h1>
-  <div id="flame">🔥</div>
-  <h2>Heat: <span id="heat">0</span></h2>
-
-  <h2>Shop</h2>
-  <div id="shop"></div>
-
+  <div id="game-container">
+    <div id="click-area">
+      <img id="flame" src="images/flame.png" alt="Flame">
+      <p>Heat: <span id="heat">0</span></p>
+      <p>Per Click: <span id="perClick">1</span> | Per Second: <span id="perSecond">0</span></p>
+    </div>
+    <div id="shop"></div>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
