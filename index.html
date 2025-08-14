@@ -1,18 +1,233 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>🔥 Flame Clicker</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    :root{
+      --bg1:#ff9f43; --bg2:#ff6b6b; --text:#fff;
+      --card: rgba(255,255,255,0.15); --card2: rgba(0,0,0,0.18);
+      --accent:#ff4d4d; --accent-dark:#ff1a1a; --danger:#ff3b3b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text); background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    }
+    header, footer{width:100%; text-align:center; padding:16px}
+    h1{margin:12px 0}
+    main{width:100%; max-width:980px; padding:12px; display:grid; gap:16px}
+    .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+    .stat{background:var(--card); border-radius:14px; padding:12px; text-align:center; backdrop-filter:blur(4px); box-shadow:0 10px 20px var(--card2)}
+    .stat .label{font-size:12px; opacity:.95}
+    .stat .value{font-size:28px; font-weight:800; margin-top:4px}
+    .clicker,.shop{background:var(--card); border-radius:16px; padding:16px; box-shadow:0 10px 20px var(--card2); backdrop-filter:blur(4px)}
+    #flameBtn{font-size:120px; line-height:1; background:transparent; border:none; cursor:pointer; transition:transform .06s}
+    #flameBtn:active{transform:scale(1.12)}
+    .hint{opacity:.95; margin-top:6px}
+    .actions{margin-top:12px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap}
+    button{padding:10px 14px; font-size:16px; border:none; border-radius:10px; cursor:pointer; background:var(--accent); color:white; box-shadow:0 6px 14px rgba(0,0,0,.2)}
+    button:hover{background:var(--accent-dark)}
+    button:disabled{opacity:.6; cursor:not-allowed}
+    button.danger{background:var(--danger)}
+    .shop h2{margin:0 0 8px}
+    .shop-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+    .shop-item{background:rgba(0,0,0,.18); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px}
+    .shop-item h3{margin:0; font-size:18px}
+    .shop-item p{margin:0; opacity:.95; font-size:14px}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:8px}
+    .cost{font-weight:700}
+    .owned{font-size:13px; opacity:.9}
+    @media (max-width:640px){ .stats{grid-template-columns:1fr} #flameBtn{font-size:96px} }
+    /* tiny on-page debug line */
+    #debug{font-size:12px; opacity:.85; text-align:center; margin-top:6px}
+  </style>
 </head>
 <body>
-  <h1>🔥 Flame Clicker 🔥</h1>
-  <div id="flame">🔥</div>
-  <h2>Heat: <span id="heat">0</span></h2>
+  <header><h1>🔥 Flame Clicker 🔥</h1></header>
 
-  <h2>Shop</h2>
-  <div id="shop"></div>
+  <main>
+    <section class="stats">
+      <div class="stat"><div class="label">Heat</div><div class="value" id="heat">0</div></div>
+      <div class="stat"><div class="label">Per Click</div><div class="value" id="perClick">1</div></div>
+      <div class="stat"><div class="label">Per Second</div><div class="value" id="perSecond">0</div></div>
+    </section>
 
-  <script src="script.js"></script>
+    <section class="clicker">
+      <button id="flameBtn" aria-label="Generate heat by clicking">🔥</button>
+      <div class="hint">Click the flame to generate heat!</div>
+      <div id="debug"></div>
+      <div class="actions">
+        <button id="saveBtn">Save</button>
+        <button id="resetBtn" class="danger">Reset</button>
+      </div>
+    </section>
+
+    <section class="shop">
+      <h2>Shop</h2>
+      <div id="shop" class="shop-list"></div>
+    </section>
+  </main>
+
+  <footer><small>Progress saves automatically in your browser.</small></footer>
+
+  <script>
+  // ======= STATE =======
+  let heat = 0;
+  let perClick = 1;
+  let perSecond = 0;
+
+  // name, icon, base cost, +perClick, +perSecond, owned, price growth
+  let shopItems = [
+    { name:"Torch",           icon:"🕯️", base:10,     pc:1,    ps:0,   owned:0, mult:1.15 },
+    { name:"Bonfire",         icon:"🔥",  base:50,     pc:0,    ps:1,   owned:0, mult:1.15 },
+    { name:"Lava Pool",       icon:"🌋",  base:200,    pc:5,    ps:0,   owned:0, mult:1.18 },
+    { name:"Forge",           icon:"⚒️",  base:500,    pc:0,    ps:5,   owned:0, mult:1.18 },
+    { name:"Volcano",         icon:"🌋",  base:2000,   pc:0,    ps:20,  owned:0, mult:1.2  },
+    { name:"Firestorm",       icon:"🌪️", base:5000,   pc:50,   ps:0,   owned:0, mult:1.22 },
+    { name:"Sun Core",        icon:"☀️",  base:20000,  pc:0,    ps:500, owned:0, mult:1.25 },
+    { name:"Phoenix Feather", icon:"🪶",  base:100000, pc:5000, ps:0,   owned:0, mult:1.28 }
+  ];
+
+  // ======= STORAGE =======
+  const KEY = "flameData_v1";
+  function saveGame(){
+    localStorage.setItem(KEY, JSON.stringify({ heat, perClick, perSecond, shopItems }));
+    dbg("Saved.");
+  }
+  function loadGame(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      if(!raw) return;
+      const data = JSON.parse(raw);
+      heat = data.heat ?? 0;
+      shopItems = Array.isArray(data.shopItems) ? data.shopItems : shopItems;
+      recalcTotals();
+      dbg("Loaded save.");
+    }catch(e){ dbg("Save load error (ignored)"); }
+  }
+
+  // ======= HELPERS =======
+  function fmt(n){
+    const units=["","K","M","B","T","Qa","Qi"];
+    let u=0, num=Math.floor(n);
+    while(num>=1000 && u<units.length-1){ num/=1000; u++; }
+    return (u===0? num.toString() : num.toFixed(2)) + units[u];
+  }
+  function currentCost(item){
+    return Math.max( Math.floor(item.base * Math.pow(item.mult, item.owned)), item.base );
+  }
+  function recalcTotals(){
+    let pc=1, ps=0;
+    for(const it of shopItems){ pc += it.pc*it.owned; ps += it.ps*it.owned; }
+    perClick = pc; perSecond = ps;
+  }
+
+  // ======= DOM =======
+  const heatEl = document.getElementById("heat");
+  const perClickEl = document.getElementById("perClick");
+  const perSecondEl = document.getElementById("perSecond");
+  const shopEl = document.getElementById("shop");
+  const debugEl = document.getElementById("debug");
+  function dbg(msg){ debugEl.textContent = msg; }
+
+  function updateStats(){
+    heatEl.textContent = fmt(heat);
+    perClickEl.textContent = fmt(perClick);
+    perSecondEl.textContent = fmt(perSecond);
+  }
+
+  function renderShop(){
+    shopEl.innerHTML = "";
+    if(!Array.isArray(shopItems) || shopItems.length===0){ dbg("Shop list empty"); return; }
+    shopItems.forEach((item, idx) => {
+      const cost = currentCost(item);
+      const canBuy = heat >= cost;
+
+      const card = document.createElement("div");
+      card.className = "shop-item";
+
+      const title = document.createElement("h3");
+      title.textContent = `${item.icon} ${item.name}`;
+      card.appendChild(title);
+
+      const desc = document.createElement("p");
+      const parts=[];
+      if(item.pc) parts.push(`+${fmt(item.pc)} / click`);
+      if(item.ps) parts.push(`+${fmt(item.ps)} / sec`);
+      desc.textContent = parts.join(" • ");
+      card.appendChild(desc);
+
+      const rowTop = document.createElement("div");
+      rowTop.className = "row";
+      const owned = document.createElement("div");
+      owned.className = "owned";
+      owned.textContent = `Owned: ${item.owned}`;
+      const costEl = document.createElement("div");
+      costEl.className = "cost";
+      costEl.textContent = `Cost: ${fmt(cost)}`;
+      rowTop.appendChild(owned);
+      rowTop.appendChild(costEl);
+      card.appendChild(rowTop);
+
+      const rowBottom = document.createElement("div");
+      rowBottom.className = "row";
+      const buyBtn = document.createElement("button");
+      buyBtn.textContent = canBuy ? "Buy" : "Not enough heat";
+      buyBtn.disabled = !canBuy;
+      buyBtn.addEventListener("click", () => buyItem(idx));
+      rowBottom.appendChild(buyBtn);
+      card.appendChild(rowBottom);
+
+      shopEl.appendChild(card);
+    });
+    dbg("Shop rendered.");
+  }
+
+  // ======= GAME LOGIC =======
+  function clickFlame(){ heat += perClick; updateStats(); saveGame(); }
+  function buyItem(index){
+    const item = shopItems[index];
+    const cost = currentCost(item);
+    if(heat < cost) return;
+    heat -= cost;
+    item.owned += 1;
+    recalcTotals();
+    updateStats();
+    renderShop();
+    saveGame();
+  }
+
+  // Passive income (smooth-ish)
+  let last = Date.now();
+  function loop(){
+    const now = Date.now();
+    const dt = Math.max(0, (now-last)/1000); // seconds
+    last = now;
+    if(perSecond>0){ heat += perSecond * dt; updateStats(); }
+    setTimeout(loop, 100); // 10x per second
+  }
+
+  // ======= HOOKUP =======
+  document.getElementById("flameBtn").addEventListener("click", clickFlame);
+  document.getElementById("saveBtn").addEventListener("click", saveGame);
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    if(!confirm("Reset all progress?")) return;
+    localStorage.removeItem(KEY);
+    heat=0; perClick=1; perSecond=0;
+    shopItems.forEach(it => it.owned=0);
+    updateStats(); renderShop(); saveGame();
+    dbg("Progress reset.");
+  });
+
+  // ======= BOOT =======
+  loadGame();
+  recalcTotals();
+  updateStats();
+  renderShop();
+  loop();
+  </script>
 </body>
 </html>
-
