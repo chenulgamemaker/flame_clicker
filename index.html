@@ -1,22 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flame Clicker</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🔥 Flame Clicker 2.0</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🔥 Flame Clicker 🔥</h1>
-  <div id="game-container">
-    <div id="click-area">
-      <img id="flame" src="images/flame.png" alt="Flame">
-      <p>Heat: <span id="heat">0</span></p>
-      <p>Per Click: <span id="perClick">1</span> | Per Second: <span id="perSecond">0</span></p>
+  <header class="topbar">
+    <h1>🔥 Flame Clicker 2.0</h1>
+    <div class="top-actions">
+      <button id="btnSettings">Settings</button>
     </div>
-    <div id="shop"></div>
-  </div>
+  </header>
+
+  <main class="grid">
+    <section class="panel statsbar">
+      <div class="stat">
+        <div class="label">Heat</div>
+        <div id="heat" class="value">0</div>
+      </div>
+      <div class="stat">
+        <div class="label">Per Click</div>
+        <div id="perClick" class="value">1</div>
+      </div>
+      <div class="stat">
+        <div class="label">Per Second</div>
+        <div id="perSecond" class="value">0</div>
+      </div>
+    </section>
+
+    <section class="panel clicker">
+      <button id="flameBtn" aria-label="Generate Heat">🔥</button>
+      <p class="hint">Click the flame to gain heat!</p>
+      <div id="popupContainer"></div>
+    </section>
+
+    <section class="panel shop">
+      <div class="panel-header">
+        <h2>Shop</h2>
+        <input id="shopSearch" placeholder="Search upgrades…" />
+      </div>
+      <div id="shop" class="shop-list"></div>
+    </section>
+
+    <section class="panel info">
+      <div class="tabs">
+        <button class="tab active" data-tab="achievements">Achievements</button>
+        <button class="tab" data-tab="stats">Stats</button>
+      </div>
+      <div id="tab-achievements" class="tabbody active">
+        <ul id="achievements" class="achievements"></ul>
+      </div>
+      <div id="tab-stats" class="tabbody">
+        <ul class="kv">
+          <li><span>Total Heat Earned</span><strong id="statTotalHeat">0</strong></li>
+          <li><span>Total Clicks</span><strong id="statClicks">0</strong></li>
+          <li><span>Upgrades Bought</span><strong id="statUpgrades">0</strong></li>
+          <li><span>Time Played</span><strong id="statTime">0s</strong></li>
+          <li><span>Save Version</span><strong id="statVersion">v2.0</strong></li>
+        </ul>
+        <div class="row">
+          <button id="btnExport">Export Save</button>
+          <label class="import">
+            <input id="importFile" type="file" accept=".json" hidden />
+            <span class="btn">Import Save</span>
+          </label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Settings Modal -->
+  <dialog id="settingsModal">
+    <form method="dialog" class="settings">
+      <h3>Settings</h3>
+      <label class="switch">
+        <input id="toggleSound" type="checkbox" />
+        <span>Sound effects</span>
+      </label>
+      <label class="switch">
+        <input id="toggleTheme" type="checkbox" />
+        <span>Light theme</span>
+      </label>
+      <div class="row">
+        <button id="btnReset" type="button" class="danger">Reset Game</button>
+        <button id="btnClose">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="tplAchItem">
+    <li class="ach">
+      <div class="ach-title"></div>
+      <div class="ach-desc"></div>
+      <div class="ach-reward"></div>
+      <div class="ach-status"></div>
+    </li>
+  </template>
+
   <script src="script.js"></script>
 </body>
 </html>
-
