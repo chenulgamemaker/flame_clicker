@@ -1,14 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Flame Clicker</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🔥 Flame Clicker 🔥</h1>
-  <div id="flame">🔥</div>
-  <h2>Heat: <span id="heat">0</span></h2>
-  <button id="upgrade">Buy Torch (cost: 10 heat)</button>
+  <header>
+    <h1>🔥 Flame Clicker 🔥</h1>
+  </header>
+
+  <main>
+    <section class="stats">
+      <div class="stat">
+        <div class="label">Heat</div>
+        <div class="value" id="heat">0</div>
+      </div>
+      <div class="stat">
+        <div class="label">Per Click</div>
+        <div class="value" id="perClick">1</div>
+      </div>
+      <div class="stat">
+        <div class="label">Per Second</div>
+        <div class="value" id="perSecond">0</div>
+      </div>
+    </section>
+
+    <section class="clicker">
+      <button id="flame" aria-label="Generate heat by clicking">🔥</button>
+      <div class="hint">Click the flame to generate heat!</div>
+      <div class="actions">
+        <button id="saveBtn">Save</button>
+        <button id="resetBtn" class="danger">Reset</button>
+      </div>
+    </section>
+
+    <section class="shop">
+      <h2>Shop</h2>
+      <div id="shop" class="shop-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <small>Progress saves automatically in your browser.</small>
+  </footer>
+
   <script src="script.js"></script>
 </body>
 </html>
