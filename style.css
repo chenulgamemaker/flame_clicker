@@ -9,6 +9,8 @@ body {
   font-size: 150px;
   cursor: pointer;
   transition: transform 0.1s;
+  margin: 20px auto;
+  display: inline-block;
 }
 
 #flame:active {
@@ -18,8 +20,9 @@ body {
 .shop-item {
   background: rgba(255,255,255,0.1);
   padding: 10px;
-  margin: 5px;
+  margin: 5px auto;
   border-radius: 8px;
+  width: 300px;
 }
 
 button {
@@ -33,6 +36,11 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:disabled {
+  background: #888;
+  cursor: not-allowed;
+}
+
+button:hover:enabled {
   background: #ff1a1a;
 }
